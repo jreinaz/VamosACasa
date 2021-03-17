@@ -1,4 +1,2 @@
 Integrantes:
-Julio Ernesto Quintero Peña\n
-Carlos Daniel Galvis Niño\n
-Juan Sebastian Reina Zamora\n
+Julio Ernesto Quintero Peña, Carlos Daniel Galvis Niño y Juan Sebastian Reina Zamora
