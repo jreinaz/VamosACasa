@@ -23,9 +23,9 @@ with webdriver.Chrome('C:/ChromeDriver/chromedriver') as driver:
     # element.save('C:/Users/enano/OneDrive/Documentos/Python/screen.png')
     array_screen = array(screen)
     # Esta es para sensar el hambiente 
-    agent_sense = agent(array_screen)
-    agent_sense.sensing()
-    for edge in agent_sense.edge_list:
-        print(edge)
+    agent_ = agent(array_screen)
+    agent_.sensing()
+    for adj, node in zip(agent_.ad_list, agent_.nodos):
+        print("({}, {})".format(node[0], adj))
     # Image.fromarray(array_screen).save('C:/Users/enano/OneDrive/Documentos/Python/screen_array.png')
     # Resuelve el laberinto
