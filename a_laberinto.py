@@ -13,6 +13,8 @@ class agent():
         self.__stack = []
         self.ad_list = []
         self.__array_screen = screen
+        self.encontrado = False
+        self.road = []
     
     def __is_known(self, position):
         for node in self.nodos:
@@ -225,4 +227,30 @@ class agent():
             if len(direccion) != 0 and not find:
                 return self.__graph(nodo_aux[0][0], nodo_aux[0][1], direccion)
             else:
-                return self.__graph(-1, -1, 'NA') 
+                return self.__graph(-1, -1, 'NA')
+
+    def dfs(self,u,visited):
+        self.road.append(u)
+        visited[u] = True
+        for j in range(len(self.ad_list[u])):
+            v = self.ad_list[u][j]
+            if("H" in self.nodos[v][1]):
+                self.encontrado = True
+                self.road.append(v)
+                break
+            if(not visited[v]):
+                self.dfs(v,visited)
+            if(j==len(self.ad_list[u])-1 and not self.encontrado):
+                self.road.pop()
+
+
+    def thinking(self):
+        visited = [False for i in range(len(self.ad_list))]
+        if(not self.encontrado):
+            self.dfs(0,visited)
+        return self.road
+
+
+
+
+
