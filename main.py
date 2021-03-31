@@ -8,8 +8,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from a_laberinto import agent
-
-with webdriver.Chrome('C:/ChromeDriver/chromedriver') as driver:
+#with webdriver.Chrome('C:/ChromeDriver/chromedriver') as driver:
+with webdriver.Chrome('C:/Users/Ingenieria/Documents/ChromeDriver/chromedriver') as driver:
     driver.get('https://www.juegosinfantilespum.com/laberintos-online/12-auto-buhos.php')
     gridPlay = driver.find_element(By.CSS_SELECTOR, "canvas")
     
@@ -25,7 +25,8 @@ with webdriver.Chrome('C:/ChromeDriver/chromedriver') as driver:
     # Esta es para sensar el hambiente 
     agent_ = agent(array_screen)
     agent_.sensing()
-    for adj, node in zip(agent_.ad_list, agent_.nodos):
-        print("({}, {})".format(node[0], adj))
+    #for adj, node in zip(agent_.ad_list, agent_.nodos):
+    #    print("({}, {})".format(node[0], adj))
     # Image.fromarray(array_screen).save('C:/Users/enano/OneDrive/Documentos/Python/screen_array.png')
     # Resuelve el laberinto
+    print(agent_.thinking())
