@@ -1,4 +1,3 @@
-from PIL import Image
 import numpy as np
 
 class agent():
@@ -69,17 +68,16 @@ class agent():
                 if ( np.equal(self.__array_screen[i][j], self.COLOR_GRASS).all()):
                     self.__array_screen[i][j] = self.COLOR_GRASS
                 elif (not np.equal(self.__array_screen[i][j], self.COLOR_CAR).all()) and (not np.equal(self.__array_screen[i][j], self.COLOR_HOUSE).all()) and (not np.equal(self.__array_screen[i][j], self.COLOR_PATH).all()
-                and not (self.__array_screen[i][j][0]>=53 and self.__array_screen[i][j][0]<=59 and self.__array_screen[i][j][1]>=56 and self.__array_screen[i][j][1]<=97 and 
-                self.__array_screen[i][j][2]>=57 and self.__array_screen[i][j][2]<=111)):
+                and not (self.__array_screen[i][j][0] >=53 and self.__array_screen[i][j][0] <= 59 and self.__array_screen[i][j][1] >= 56 and self.__array_screen[i][j][1] <= 97 and 
+                self.__array_screen[i][j][2] >= 57 and self.__array_screen[i][j][2] <= 111)):
                     self.__array_screen[i, j] = self.COLOR_BLACK
-                elif (self.__array_screen[i][j][0]>=53 and self.__array_screen[i][j][0]<=59 and self.__array_screen[i][j][1]>=56 and self.__array_screen[i][j][1]<=97 and 
-                self.__array_screen[i][j][2]>=57 and self.__array_screen[i][j][2]<=111) :
+                elif (self.__array_screen[i][j][0] >= 53 and self.__array_screen[i][j][0] <= 59 and self.__array_screen[i][j][1] >=56 and self.__array_screen[i][j][1] <= 97 and 
+                self.__array_screen[i][j][2] >= 57 and self.__array_screen[i][j][2] <= 111):
                     self.__array_screen[i, j] = self.COLOR_OWL
         house_position , xd = self.__find_pix(self.COLOR_HOUSE)
         self.__array_screen[house_position[1] - 20 : house_position[1],house_position[0]] = self.COLOR_HOUSE
         self.__array_screen[house_position[1], house_position[0] - 13 : house_position[0] + 15] = self.COLOR_HOUSE
         car_position, direccion = self.__find_pix(self.COLOR_CAR)
-
         if len(self.ad_list) == 0:
             self.ad_list.append([])
             self.__graph(car_position[0], car_position[1], [direccion])

@@ -22,7 +22,7 @@ with webdriver.Chrome('C:/ChromeDriver/chromedriver') as driver:
     screen = Image.open(io.BytesIO(element)).convert('RGB')
     # element.save('C:/Users/enano/OneDrive/Documentos/Python/screen.png')
     array_screen = array(screen)
-    # Esta es para sensar el hambiente 
+    # Esta es para sensar el hambiente
     agent_ = agent(array_screen)
     agent_.sensing()
     for adj, node in zip(agent_.ad_list, agent_.nodos):
