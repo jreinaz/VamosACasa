@@ -22,8 +22,6 @@ class agent():
     def __repeated_nodes(self,nodo):
         ans = False
         for n in self.nodos:
-            #print("NODO HIJO: ", n)
-            #print(mth.dist(nodo[0],n[0]))
             if(mth.dist(nodo[0],n[0]) < 32):
                 ans = True
         return ans
@@ -35,9 +33,9 @@ class agent():
         return False
 
     def __index_node(self, position):
-        for node in self.nodos:
-            if node[0] == position:
-                return self.nodos.index(node)
+        for i in range(len(self.nodos)):
+            if self.nodos[i][0] == position:
+                return i
 
     def __make_direction(self, *args):
         """ args[0] x_min, args[1] x_max, args[2] y_min, args[3] y_max, args[4] mean_x, args[5] mean_y
@@ -63,14 +61,19 @@ class agent():
                     if x_pos not in x:
                         x.append(x_pos)
         mean_x, mean_y = np.mean(x, dtype=np.int32), np.mean(y, dtype=np.int32)
-        direccion = self.__make_direction(np.min(x) - 40, np.max(x) + 40, np.min(y) - 40, np.max(y) + 40, mean_x, mean_y)
+        min_x , max_x = np.min(x),np.max(x)
+        min_y , max_y = np.min(y),np.max(y)
+        direccion = self.__make_direction(min_x - 40, max_x + 40, min_y - 40, max_y + 40, mean_x, mean_y)
+        if(max_x-min_x > max_y-min_y):
+            mean_y+=3
         # Retornamos la media de todas las posiciones X y Y y la direcion en la que se puede mover
         return [mean_x, mean_y], direccion
 
     def __add_node(self, nodo_aux, nodo_hijo):
         if not self.__is_known(nodo_hijo[0]):
             self.nodos.append(nodo_hijo)
-        if len(self.ad_list) == self.__index_node(nodo_hijo[0]):
+        if len(self.ad_list) <= self.__index_node(nodo_hijo[0]):
+            self.ad_list.append([])
             self.ad_list.append([])
         self.ad_list[self.__index_node(nodo_hijo[0])].append(self.__index_node(nodo_aux[0]))
         self.ad_list[self.__index_node(nodo_aux[0])].append(self.__index_node(nodo_hijo[0]))
@@ -90,7 +93,6 @@ class agent():
                     self.__array_screen[i, j] = self.COLOR_OWL
         house_position , xd = self.__find_pix(self.COLOR_HOUSE)
         self.__array_screen[house_position[1] - 20 : house_position[1]+10,house_position[0]-13:house_position[0]+15] = self.COLOR_HOUSE
-        #self.__array_screen[house_position[1], house_position[0] - 13 : house_position[0] + 15] = self.COLOR_HOUSE
         image = Image.fromarray(self.__array_screen)
         image.save("C:\Clonado P1 inteligentes\VamosACasa\screenProcesed.png")
         car_position, direccion = self.__find_pix(self.COLOR_CAR)
@@ -104,13 +106,12 @@ class agent():
         nodo = [[pos_x, pos_y], direccion]    
         if not self.__is_known(nodo[0]) and pos_x != -1:
             self.nodos.append(nodo)
-        # print("Lista de Nodos: ", self.nodos, '\n')
         if pos_x != -1:
             self.__stack.append(nodo)
             self.visited[self.__index_node(nodo[0])] = 1
         if len(self.__stack) != 0:
             nodo_aux = self.__stack.pop()
-            #print("Nodo actual: ", nodo_aux)
+            print("Nodo actual: ", nodo_aux)
             x, y = nodo_aux[0][0], nodo_aux[0][1]
             direccion = nodo_aux[1][:]
             d = direccion.pop()
@@ -124,7 +125,12 @@ class agent():
                     if (np.equal(aux[i], self.COLOR_GRASS).any() or np.equal(aux[i], self.COLOR_OWL).any()):
                         break
                 i += 20
+                print("i: ",i)
                 for j in range(y,i,-1):
+                    if np.equal(self.__array_screen[j - 17, x], self.COLOR_HOUSE).all():
+                        nodo_hijo = [[x, j - 37], ['H']]
+                        self.__add_node(nodo_aux, nodo_hijo)
+                        break
                     if (not np.equal(self.__array_screen[j, x + 22], self.COLOR_GRASS).all() and 
                         not np.equal(self.__array_screen[j, x + 22], self.COLOR_BLACK).all()):
                         direccion_hijo.append('D')
@@ -133,23 +139,20 @@ class agent():
                         not np.equal(self.__array_screen[j, x - 22], self.COLOR_BLACK).all()):
                         direccion_hijo.append('I')
                         find = True
-                    if j - i > 17 and find:
+                    if abs(j - i) > 37 and find:
                         direccion_hijo.append('AR')
-                    if np.equal(self.__array_screen[j - 37, x], self.COLOR_HOUSE).all():
-                        nodo_hijo = [[x, j], ['H']]
-                        self.__add_node(nodo_aux, nodo_hijo)
-                        break
                     if find:
-                        nodo_hijo = [[x, j - 20], direccion_hijo]
+                        nodo_hijo = [[x, j - 17], direccion_hijo]
+                        print("Nodo Hijo: ",nodo_hijo)
+                        print("j :", j)
                         if(not self.__repeated_nodes(nodo_hijo)):
-                            # print("Nodo hijo: ", nodo_hijo, '\n')
                             self.__add_node(nodo_aux, nodo_hijo)
                             if len(direccion) != 0 and self.visited[self.__index_node(nodo_hijo[0])] != 1:
                                 self.__stack.append(nodo_hijo)
                                 self.visited[self.__index_node(nodo_hijo[0])] = 1
                                 return self.__graph(x, y + 21, direccion) #sumar 21
                             elif self.visited[self.__index_node(nodo_hijo[0])] != 1:
-                                return self.__graph(x, j - 20, direccion_hijo)
+                                return self.__graph(x, j - 17, direccion_hijo)
             if d == 'AB':
                 y += 21
                 # Linea vertical
@@ -159,6 +162,10 @@ class agent():
                         break
                 i -= 20
                 for j in range(y,i):
+                    if np.equal(self.__array_screen[j + 17, x], self.COLOR_HOUSE).all():
+                        nodo_hijo = [[x, j + 27], ['H']]
+                        self.__add_node(nodo_aux, nodo_hijo)
+                        break
                     if (not np.equal(self.__array_screen[j, x + 22], self.COLOR_GRASS).all() and
                         not np.equal(self.__array_screen[j, x + 22], self.COLOR_BLACK).all()):
                         direccion_hijo.append('D')
@@ -167,23 +174,18 @@ class agent():
                         not np.equal(self.__array_screen[j, x - 22], self.COLOR_BLACK).all()):
                         direccion_hijo.append('I')
                         find = True
-                    if i - j > 17 and find:
+                    if abs(i - j) > 37 and find:
                         direccion_hijo.append('AB')
-                    if np.equal(self.__array_screen[j + 10, x], self.COLOR_HOUSE).all():
-                        nodo_hijo = [[x, j], ['H']]
-                        self.__add_node(nodo_aux, nodo_hijo)
-                        break
                     if find:
-                        nodo_hijo = [[x, j + 20], direccion_hijo]
+                        nodo_hijo = [[x, j + 17], direccion_hijo]
                         if(not self.__repeated_nodes(nodo_hijo)):
-                            # print("Nodo hijo: ", nodo_hijo, '\n')
                             self.__add_node(nodo_aux, nodo_hijo)
                             if len(direccion) != 0 and self.visited[self.__index_node(nodo_hijo[0])] != 1:
                                 self.__stack.append(nodo_hijo)
                                 self.visited[self.__index_node(nodo_hijo[0])] = 1
                                 return self.__graph(x, y - 21, direccion) #Restar 21
                             elif self.visited[self.__index_node(nodo_hijo[0])] != 1:
-                                return self.__graph(x, j + 20, direccion_hijo)
+                                return self.__graph(x, j + 17, direccion_hijo)
             if d == 'I':
                 x -= 21
                 # linea horizontal
@@ -192,7 +194,12 @@ class agent():
                     if np.equal(aux[i], self.COLOR_GRASS).any() or np.equal(aux[i], self.COLOR_OWL).any():
                         break
                 i += 20
+                print("i: ", i)
                 for j in range(x,i,-1):
+                    if np.equal(self.__array_screen[y, j - 17], self.COLOR_HOUSE).all():
+                        nodo_hijo = [[j - 32, y], ['H']]
+                        self.__add_node(nodo_aux, nodo_hijo)
+                        break
                     if (not np.equal(self.__array_screen[y + 22, j], self.COLOR_GRASS).all() and
                         not np.equal(self.__array_screen[y + 22, j], self.COLOR_BLACK).all()):
                         direccion_hijo.append('AB')
@@ -201,23 +208,20 @@ class agent():
                         not np.equal(self.__array_screen[y - 22, j], self.COLOR_BLACK).all()):
                         direccion_hijo.append('AR')
                         find = True
-                    if j - i > 17 and find:
+                    if abs(j - i) > 37 and find:
                         direccion_hijo.append('I')
-                    if np.equal(self.__array_screen[y, j - 20], self.COLOR_HOUSE).all():
-                        nodo_hijo = [[j, y], ['H']]
-                        self.__add_node(nodo_aux, nodo_hijo)
-                        break
                     if find:
-                        nodo_hijo = [[j - 20, y], direccion_hijo]
+                        nodo_hijo = [[j - 17, y], direccion_hijo]
+                        print("Nodo Hijo: ",nodo_hijo)
+                        print("j :", j)
                         if(not self.__repeated_nodes(nodo_hijo)):
-                            # print("Nodo hijo: ", nodo_hijo, '\n')
                             self.__add_node(nodo_aux, nodo_hijo)
                             if len(direccion) != 0 and self.visited[self.__index_node(nodo_hijo[0])] != 1:
                                 self.__stack.append(nodo_hijo)
                                 self.visited[self.__index_node(nodo_hijo[0])] = 1
                                 return self.__graph(x + 21, y, direccion)#sumar 21
                             elif self.visited[self.__index_node(nodo_hijo[0])] != 1:
-                                return self.__graph(j - 20, y, direccion_hijo)
+                                return self.__graph(j - 17, y, direccion_hijo)
             if d == 'D':
                 x += 21
                 # Linea horizontal
@@ -227,6 +231,10 @@ class agent():
                         break
                 i -= 20
                 for j in range(x,i):
+                    if np.equal(self.__array_screen[y, j + 17], self.COLOR_HOUSE).all():
+                        nodo_hijo = [[j + 30, y], ['H']]
+                        self.__add_node(nodo_aux,nodo_hijo)
+                        break
                     if (not np.equal(self.__array_screen[y + 22, j], self.COLOR_GRASS).all() and
                         not np.equal(self.__array_screen[y + 22, j], self.COLOR_BLACK).all()):
                         direccion_hijo.append('AB')
@@ -235,23 +243,18 @@ class agent():
                         not np.equal(self.__array_screen[y - 22, j], self.COLOR_BLACK).all()):
                         direccion_hijo.append('AR')
                         find = True
-                    if i - j > 17 and find and not np.equal(self.__array_screen[y, j + 45], self.COLOR_BLACK).all():
+                    if abs(i - j) > 37 and find and not np.equal(self.__array_screen[y, j + 45], self.COLOR_BLACK).all():
                         direccion_hijo.append('D')
-                    if np.equal(self.__array_screen[y, j + 20], self.COLOR_HOUSE).all():
-                        nodo_hijo = [[j, y], ['H']]
-                        self.__add_node(nodo_aux,nodo_hijo)
-                        break
                     if find:
-                        nodo_hijo = [[j + 20, y], direccion_hijo]
+                        nodo_hijo = [[j + 17, y], direccion_hijo]
                         if(not self.__repeated_nodes(nodo_hijo)):
-                            # print("Nodo hijo: ", nodo_hijo, '\n')
                             self.__add_node(nodo_aux, nodo_hijo)
                             if len(direccion) != 0 and self.visited[self.__index_node(nodo_hijo[0])] != 1:
                                 self.__stack.append(nodo_hijo)
                                 self.visited[self.__index_node(nodo_hijo[0])] = 1
                                 return self.__graph(x - 21, y, direccion)#restar 21
                             elif self.visited[self.__index_node(nodo_hijo[0])] != 1:
-                                return self.__graph(j + 20, y, direccion_hijo)
+                                return self.__graph(j + 17, y, direccion_hijo)
             if len(direccion) != 0 and not find:
                 return self.__graph(nodo_aux[0][0], nodo_aux[0][1], direccion)
             else:
@@ -266,14 +269,13 @@ class agent():
                 self.encontrado = True
                 self.road.append(v)
                 break
-            if(not visited[v]):
+            if(not visited[v] and not self.encontrado):
                 self.dfs(v,visited)
             if(j==len(self.ad_list[u])-1 and not self.encontrado):
                 self.road.pop()
 
 
     def thinking(self):
-        print(self.nodos)
         visited = [False for i in range(len(self.ad_list))]
         if(not self.encontrado):
             self.dfs(0,visited)
