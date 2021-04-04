@@ -291,14 +291,14 @@ class agent():
             else:
                 if(pos_actual[0] == pos_dest[0]):
                     if(pos_dest[1]>pos_actual[1]):
-                        self.flecha_mover.append(['AB',self.calculate_time(pos_dest[1]-pos_actual[1])])
+                        self.flecha_mover.append(['AB',self.calculate_time(abs(pos_dest[1]-pos_actual[1]))])
                     else:
-                        self.flecha_mover.append(['AR',self.calculate_time(pos_actual[1]-pos_dest[1])])
+                        self.flecha_mover.append(['AR',self.calculate_time(abs(pos_actual[1]-pos_dest[1]))])
                 else:
                     if(pos_dest[0]>pos_actual[0]):
-                        self.flecha_mover.append(['D',self.calculate_time(pos_dest[0]-pos_actual[0])])
+                        self.flecha_mover.append(['D',self.calculate_time(abs(pos_dest[0]-pos_actual[0]))])
                     else:
-                        self.flecha_mover.append(['I',self.calculate_time(pos_actual[0]-pos_dest[0])])
+                        self.flecha_mover.append(['I',self.calculate_time(abs(pos_actual[0]-pos_dest[0]))])
 
 
     def acting(self,ActionChains):
