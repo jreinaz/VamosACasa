@@ -22,7 +22,6 @@ jugar = input()
 while(jugar != '0'):
     element = gridPlay.screenshot_as_png
     screen = Image.open(io.BytesIO(element)).convert('RGB')
-    screen.save('C:\Clonado P1 inteligentes\VamosACasa\screen.png')
     array_screen = array(screen)
     agent_ = agent(array_screen)
     print("SENSING.......")

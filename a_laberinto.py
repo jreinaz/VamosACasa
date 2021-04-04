@@ -108,7 +108,6 @@ class agent():
     def sensing(self):
         self.process_image()
         image = Image.fromarray(self.__array_screen)
-        image.save("C:\Clonado P1 inteligentes\VamosACasa\screenProcesed.png")
         car_position, direccion = self.__find_pix(self.COLOR_CAR)
 
         if len(self.ad_list) == 0:
